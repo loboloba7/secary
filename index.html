@@ -3,168 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Mercados Banner - GAD Cuenca</title>
+    <title>TERMINAL DE MONITOREO - GAD CUENCA</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --guinda: #8B1D1D; --dorado: #CFAE70; --gris: #f4f4f4; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--gris); padding-bottom: 50px; }
+        :root { 
+            --guinda: #631414; 
+            --guinda-luz: #8B1D1D;
+            --dorado: #CFAE70; 
+            --fondo: #0a0a0b;
+            --tarjeta: #141417;
+            --texto: #e0e0e0;
+            --neon: #00ff41; /* Verde matriz para sensación de monitoreo */
+        }
 
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Consolas', 'Courier New', monospace; }
+        
+        body { 
+            background-color: var(--fondo); 
+            color: var(--texto);
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1f 0%, #0a0a0b 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER TIPO RADAR */
         header { 
-            background: var(--guinda); color: white; padding: 1rem 2rem; 
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 4px solid var(--dorado);
-            position: sticky; top: 0; z-index: 1000;
-        }
-        
-        .container { max-width: 100%; margin: 10px auto; padding: 0 20px; }
-
-        /* Estilo Banner: Gráficos anchos y estilizados */
-        .banner-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
-        
-        .card-banner { 
-            background: white; padding: 15px; border-radius: 8px; 
-            border-left: 8px solid var(--guinda);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            height: 180px; /* Altura tipo banner */
+            padding: 15px 30px;
+            background: rgba(20, 20, 23, 0.9);
+            border-bottom: 2px solid var(--guinda);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        .card-banner h3 { 
-            font-size: 0.8rem; color: var(--guinda); text-transform: uppercase; 
-            margin-bottom: 5px; display: flex; justify-content: space-between;
+        .status-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.8rem;
         }
 
-        /* Sección Inferior: Enlaces */
-        .bottom-section { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        
-        .card-links { 
-            background: white; padding: 25px; border-radius: 12px; 
-            border-top: 5px solid var(--dorado);
+        .pulse {
+            width: 10px;
+            height: 10px;
+            background: var(--neon);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon);
+            animation: blink 1.5s infinite;
         }
 
-        .links-list { 
-            list-style: none; display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 10px; 
-        }
-        
-        .links-list li a { 
-            display: block; padding: 12px; border: 1px solid #eee; 
-            color: #444; text-decoration: none; border-radius: 6px; 
-            font-size: 0.85rem; transition: 0.3s; background: #fafafa;
-            border-left: 3px solid var(--dorado);
-        }
-        
-        .links-list li a:hover { 
-            background: var(--guinda); color: white; border-color: var(--guinda);
-            transform: scale(1.02);
+        /* LAYOUT PRINCIPAL */
+        main {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            flex-grow: 1;
+            gap: 10px;
+            padding: 10px;
+            overflow: hidden;
         }
 
-        .chart-container { position: relative; height: 130px; width: 100%; }
+        /* SECCIÓN DE GRÁFICOS (MONITORES) */
+        .monitor-wall {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .monitor-card {
+            background: var(--tarjeta);
+            border: 1px solid #2a2a30;
+            padding: 15px;
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .monitor-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .monitor-card h3 {
+            font-size: 0.75rem;
+            color: var(--dorado);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .chart-container { flex-grow: 1; position: relative; }
+
+        /* PANEL LATERAL DE CONTROL */
+        .control-panel {
+            background: var(--tarjeta);
+            border-left: 2px solid var(--guinda);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .control-panel h2 {
+            font-size: 0.9rem;
+            color: var(--guinda-luz);
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--guinda);
+            padding-bottom: 5px;
+        }
+
+        .link-list { list-style: none; }
+        .link-list li { margin-bottom: 8px; }
         
-        #status { font-size: 0.7rem; padding: 5px 12px; border-radius: 20px; background: #28a745; font-weight: bold; }
+        .link-list a {
+            display: block;
+            padding: 10px;
+            background: #1d1d21;
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.75rem;
+            border: 1px solid #2a2a30;
+            transition: all 0.3s;
+        }
+
+        .link-list a:hover {
+            background: var(--guinda);
+            color: white;
+            border-color: var(--dorado);
+            padding-left: 15px;
+        }
+
+        /* VALORES NUMÉRICOS TIPO LED */
+        .data-stream {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 1.2rem;
+            color: var(--neon);
+            text-shadow: 0 0 5px var(--neon);
+        }
+
+        @keyframes blink { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } }
+
     </style>
 </head>
 <body>
 
 <header>
     <div>
-        <h1 style="font-size: 1.1rem;">DIRECCIÓN DE MERCADOS | GAD CUENCA</h1>
-        <small>Panel de Monitoreo Estilo Banner</small>
+        <h1 style="font-size: 1rem; color: var(--dorado);">CENTRAL DE INTELIGENCIA DE MERCADOS | GAD CUENCA</h1>
+        <code style="font-size: 0.7rem; color: #666;">SYS_REF: PANTALLA.XLSX | USER: IPOVEDA</code>
     </div>
-    <div id="status">LIVE DATA</div>
+    <div class="status-box">
+        <span>UPLINK: STABLE</span>
+        <div class="pulse"></div>
+        <span id="clock">00:00:00</span>
+    </div>
 </header>
 
-<div class="container">
-    <div class="banner-grid">
-        <div class="card-banner">
-            <h3>Adjudicaciones vs Renovaciones <span>Puntos de Control</span></h3>
+<main>
+    <section class="monitor-wall">
+        <div class="monitor-card">
+            <h3>>> FLUJO_ADJUDICACIONES_RENOVACIONES</h3>
+            <div class="data-stream" id="val1">00.0</div>
             <div class="chart-container"><canvas id="chart1"></canvas></div>
         </div>
-        <div class="card-banner">
-            <h3>Estado de Legalizaciones <span>Consolidado Mensual</span></h3>
+        <div class="monitor-card">
+            <h3>>> ESTADO_LEGALIZACIONES_MENSUAL</h3>
+            <div class="data-stream" id="val2">00.0</div>
             <div class="chart-container"><canvas id="chart2"></canvas></div>
         </div>
-        <div class="card-banner">
-            <h3>Monitoreo de Renuncias <span>Fluctuación en tiempo real</span></h3>
+        <div class="monitor-card">
+            <h3>>> MONITOREO_RENUNCIAS_CRITICO</h3>
+            <div class="data-stream" id="val3">0.0</div>
             <div class="chart-container"><canvas id="chart3"></canvas></div>
         </div>
-    </div>
+    </section>
 
-    <div class="bottom-section">
-        <div class="card-links">
-            <h3 style="margin-bottom: 15px; color: var(--guinda); border-left: 4px solid var(--guinda); padding-left: 10px;">GESTIÓN Y TRÁMITES</h3>
-            <ul class="links-list">
-                <li><a href="https://docs.google.com/spreadsheets/d/1M36SO77p6wLoZ9qw9BzJFQjJibuG_YqU/edit?usp=drive_link" target="_blank">Mercados Pequeños</a></li>
-                <li><a href="https://docs.google.com/spreadsheets/d/1BnHnMEkdRbWise49HErl8EHZ_cfYZBKd/edit?usp=sharing" target="_blank">Mercados Grandes</a></li>
-                <li><a href="https://docs.google.com/spreadsheets/d/1SDVjLxDzZZ32VchBt3QOBjfjcGsbFQ-e/edit?usp=sharing" target="_blank">Comercio Autónomo</a></li>
-                <li><a href="https://docs.google.com/spreadsheets/d/1Yi1d6xCT8fZL7ya-NJ4tqVpJKt299OIU/edit?usp=sharing" target="_blank">Concesiones Históricas</a></li>
-                <li><a href="https://enlinea.cuenca.gob.ec/#/impuestos" target="_blank">Pagos pendientes comerciantes</a></li>
-                <li><a href="https://enlinea.cuenca.gob.ec/#/impuestos-cancelados" target="_blank">Pagos cancelados comerciantes</a></li>
-                <li><a href="https://docs.google.com/spreadsheets/d/1OQ_3tY3CTIkkidz7ELQbHX1rWwatYBD9xKf41Niw-RA/edit?usp=sharing" target="_blank">Monitoreo</a></li>
-                <li><a href="https://docs.google.com/spreadsheets/d/1WekK8XP5N65RWGKI70xLTZpV7WKkfx5D/edit?usp=drive_link" target="_blank">Población</a></li>
-                <li><a href="https://loboloba7.github.io/comerciante/" target="_blank">Trámites Comerciantes</a></li>
-                <li><a href="https://hux9dwyzalzf4pkhsz1j0a.on.drv.tw/GENEXUS3/admin.html" target="_blank">Admin</a></li>
-                <li><a href="https://www.cuenca.gob.ec/taxonomy/term/26" target="_blank">Trámites en línea</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
+    <aside class="control-panel">
+        <h2>TERMINALES EXTERNAS</h2>
+        <ul class="link-list">
+            <li><a href="https://docs.google.com/spreadsheets/d/1M36SO77p6wLoZ9qw9BzJFQjJibuG_YqU/edit?usp=drive_link" target="_blank">MERCADOS PEQUEÑOS</a></li>
+            <li><a href="https://docs.google.com/spreadsheets/d/1BnHnMEkdRbWise49HErl8EHZ_cfYZBKd/edit?usp=sharing" target="_blank">MERCADOS GRANDES</a></li>
+            <li><a href="https://docs.google.com/spreadsheets/d/1SDVjLxDzZZ32VchBt3QOBjfjcGsbFQ-e/edit?usp=sharing" target="_blank">COMERCIO AUTÓNOMO</a></li>
+            <li><a href="https://docs.google.com/spreadsheets/d/1Yi1d6xCT8fZL7ya-NJ4tqVpJKt299OIU/edit?usp=sharing" target="_blank">CONCESIONES HISTÓRICAS</a></li>
+            <li><a href="https://enlinea.cuenca.gob.ec/#/impuestos" target="_blank">PAGOS PENDIENTES</a></li>
+            <li><a href="https://enlinea.cuenca.gob.ec/#/impuestos-cancelados" target="_blank">PAGOS CANCELADOS</a></li>
+            <li><a href="https://docs.google.com/spreadsheets/d/1OQ_3tY3CTIkkidz7ELQbHX1rWwatYBD9xKf41Niw-RA/edit?usp=sharing" target="_blank">MONITOREO GLOBAL</a></li>
+            <li><a href="https://docs.google.com/spreadsheets/d/1WekK8XP5N65RWGKI70xLTZpV7WKkfx5D/edit?usp=drive_link" target="_blank">POBLACIÓN DATA</a></li>
+            <li><a href="https://loboloba7.github.io/comerciante/" target="_blank">TRÁMITES COMERCIANTE</a></li>
+            <li><a href="https://hux9dwyzalzf4pkhsz1j0a.on.drv.tw/GENEXUS3/admin.html" target="_blank">ADMINISTRACIÓN</a></li>
+            <li><a href="https://www.cuenca.gob.ec/taxonomy/term/26" target="_blank">TRÁMITES EN LÍNEA</a></li>
+        </ul>
+    </aside>
+</main>
 
 <script>
-    let chartInstances = {};
-    const labels = ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4', 'Semana 5', 'Semana 6', 'Semana 7', 'Semana 8'];
+    const chartInstances = {};
+    
+    // Reloj de la terminal
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
 
-    function initCharts() {
-        const commonOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }, // Ocultar leyenda para estilo banner
-            scales: { 
-                y: { display: false }, // Ocultar eje Y para limpieza
-                x: { grid: { display: false } }
+    function createChart(id, type, color) {
+        const ctx = document.getElementById(id).getContext('2d');
+        return new Chart(ctx, {
+            type: type,
+            data: {
+                labels: Array(30).fill(''),
+                datasets: [{
+                    data: Array(30).fill(0).map(() => Math.random() * 50),
+                    borderColor: color,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: type === 'line',
+                    backgroundColor: color + '22',
+                    tension: 0.3
+                }]
             },
-            elements: { point: { radius: 2 } }
-        };
-
-        const ctx1 = document.getElementById('chart1').getContext('2d');
-        chartInstances['chart1'] = new Chart(ctx1, {
-            type: 'line',
-            data: { labels, datasets: [
-                { data: [10, 15, 8, 12, 20, 15, 25, 22], borderColor: '#8B1D1D', tension: 0.4, fill: true, backgroundColor: 'rgba(139,29,29,0.05)' },
-                { data: [5, 8, 12, 10, 15, 12, 18, 15], borderColor: '#CFAE70', tension: 0.4 }
-            ]},
-            options: commonOptions
-        });
-
-        const ctx2 = document.getElementById('chart2').getContext('2d');
-        chartInstances['chart2'] = new Chart(ctx2, {
-            type: 'bar',
-            data: { labels, datasets: [{ data: [15, 25, 20, 30, 25, 35, 30, 40], backgroundColor: '#8B1D1D' }]},
-            options: commonOptions
-        });
-
-        const ctx3 = document.getElementById('chart3').getContext('2d');
-        chartInstances['chart3'] = new Chart(ctx3, {
-            type: 'line',
-            data: { labels, datasets: [{ data: [2, 5, 3, 6, 4, 7, 5, 8], borderColor: '#333', tension: 0.1 }]},
-            options: commonOptions
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { display: false }, 
+                    y: { 
+                        grid: { color: '#2a2a30' },
+                        ticks: { color: '#444', font: { size: 10 } }
+                    } 
+                }
+            }
         });
     }
 
-    function oscilar() {
-        Object.values(chartInstances).forEach(chart => {
-            chart.data.datasets.forEach(dataset => {
-                dataset.data = dataset.data.map(v => Math.max(2, v + (Math.random() * 4 - 2)));
+    function init() {
+        chartInstances['chart1'] = createChart('chart1', 'line', '#8B1D1D');
+        chartInstances['chart2'] = createChart('chart2', 'bar', '#CFAE70');
+        chartInstances['chart3'] = createChart('chart3', 'line', '#00ff41');
+
+        setInterval(() => {
+            Object.keys(chartInstances).forEach((key, index) => {
+                const chart = chartInstances[key];
+                const data = chart.data.datasets[0].data;
+                data.shift();
+                const newVal = Math.max(10, data[data.length-1] + (Math.random() * 10 - 5));
+                data.push(newVal);
+                chart.update('none');
+                document.getElementById('val' + (index + 1)).innerText = newVal.toFixed(1);
             });
-            chart.update('none');
-        });
+        }, 2000);
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initCharts();
-        setInterval(oscilar, 2000);
-    });
+    document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
