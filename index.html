@@ -3,154 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Dinámico - GAD Cuenca</title>
+    <title>Dashboard Mercados Banner - GAD Cuenca</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --guinda: #8B1D1D; --dorado: #CFAE70; --gris: #f4f4f4; }
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--gris); overflow-x: hidden; }
+        body { background: var(--gris); padding-bottom: 50px; }
 
         header { 
             background: var(--guinda); color: white; padding: 1rem 2rem; 
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 4px solid var(--dorado);
+            position: sticky; top: 0; z-index: 1000;
         }
-        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
         
-        .card { 
-            background: white; padding: 20px; border-radius: 12px; 
-            border-top: 5px solid var(--dorado); min-height: 380px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
-        }
-        .card:hover { transform: translateY(-5px); }
-        
-        h3 { color: var(--guinda); font-size: 0.9rem; margin-bottom: 15px; border-left: 4px solid var(--guinda); padding-left: 10px; text-transform: uppercase; }
-        
-        #status { font-size: 0.7rem; padding: 5px 12px; border-radius: 20px; background: #28a745; font-weight: bold; color: white; animation: pulse 2s infinite; }
+        .container { max-width: 100%; margin: 10px auto; padding: 0 20px; }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
+        /* Estilo Banner: Gráficos anchos y estilizados */
+        .banner-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
+        
+        .card-banner { 
+            background: white; padding: 15px; border-radius: 8px; 
+            border-left: 8px solid var(--guinda);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            height: 180px; /* Altura tipo banner */
         }
 
-        .links-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-link { 
-            padding: 10px; border: 1px solid var(--guinda); color: var(--guinda); 
-            text-decoration: none; text-align: center; border-radius: 4px; font-weight: bold; font-size: 0.8rem; transition: 0.3s;
+        .card-banner h3 { 
+            font-size: 0.8rem; color: var(--guinda); text-transform: uppercase; 
+            margin-bottom: 5px; display: flex; justify-content: space-between;
         }
-        .btn-link:hover { background: var(--guinda); color: white; }
-        .btn-sync {
-            width: 100%; margin-top: 15px; padding: 12px; background: var(--guinda); 
-            color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
+
+        /* Sección Inferior: Enlaces */
+        .bottom-section { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        
+        .card-links { 
+            background: white; padding: 25px; border-radius: 12px; 
+            border-top: 5px solid var(--dorado);
         }
-        .chart-container { position: relative; height: 280px; width: 100%; }
+
+        .links-list { 
+            list-style: none; display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 10px; 
+        }
+        
+        .links-list li a { 
+            display: block; padding: 12px; border: 1px solid #eee; 
+            color: #444; text-decoration: none; border-radius: 6px; 
+            font-size: 0.85rem; transition: 0.3s; background: #fafafa;
+            border-left: 3px solid var(--dorado);
+        }
+        
+        .links-list li a:hover { 
+            background: var(--guinda); color: white; border-color: var(--guinda);
+            transform: scale(1.02);
+        }
+
+        .chart-container { position: relative; height: 130px; width: 100%; }
+        
+        #status { font-size: 0.7rem; padding: 5px 12px; border-radius: 20px; background: #28a745; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <header>
     <div>
-        <h1 style="font-size: 1.2rem;">DIRECCIÓN DE MERCADOS | GAD CUENCA</h1>
-        <small>Monitoreo en Tiempo Real - Usuario: ipoveda</small>
+        <h1 style="font-size: 1.1rem;">DIRECCIÓN DE MERCADOS | GAD CUENCA</h1>
+        <small>Panel de Monitoreo Estilo Banner</small>
     </div>
-    <div id="status">SISTEMA ACTIVO</div>
+    <div id="status">LIVE DATA</div>
 </header>
 
 <div class="container">
-    <div class="dashboard-grid">
-        <div class="card">
-            <h3>Adjudicaciones vs Renovaciones</h3>
+    <div class="banner-grid">
+        <div class="card-banner">
+            <h3>Adjudicaciones vs Renovaciones <span>Puntos de Control</span></h3>
             <div class="chart-container"><canvas id="chart1"></canvas></div>
         </div>
-        <div class="card">
-            <h3>Estado de Legalizaciones</h3>
+        <div class="card-banner">
+            <h3>Estado de Legalizaciones <span>Consolidado Mensual</span></h3>
             <div class="chart-container"><canvas id="chart2"></canvas></div>
         </div>
-        <div class="card">
-            <h3>Monitoreo de Renuncias</h3>
+        <div class="card-banner">
+            <h3>Monitoreo de Renuncias <span>Fluctuación en tiempo real</span></h3>
             <div class="chart-container"><canvas id="chart3"></canvas></div>
         </div>
-        <div class="card">
-            <h3>Gestión Operativa</h3>
-            <div class="links-container">
-                <a href="#" class="btn-link">Mercados Pequeños</a>
-                <a href="#" class="btn-link">Mercados Grandes</a>
-                <a href="#" class="btn-link">Comercio Autónomo</a>
-                <a href="#" class="btn-link">Pagos en Línea</a>
-            </div>
-            <button class="btn-sync">MODO AUTO-OSCILACIÓN</button>
+    </div>
+
+    <div class="bottom-section">
+        <div class="card-links">
+            <h3 style="margin-bottom: 15px; color: var(--guinda); border-left: 4px solid var(--guinda); padding-left: 10px;">GESTIÓN Y TRÁMITES</h3>
+            <ul class="links-list">
+                <li><a href="https://docs.google.com/spreadsheets/d/1M36SO77p6wLoZ9qw9BzJFQjJibuG_YqU/edit?usp=drive_link" target="_blank">Mercados Pequeños</a></li>
+                <li><a href="https://docs.google.com/spreadsheets/d/1BnHnMEkdRbWise49HErl8EHZ_cfYZBKd/edit?usp=sharing" target="_blank">Mercados Grandes</a></li>
+                <li><a href="https://docs.google.com/spreadsheets/d/1SDVjLxDzZZ32VchBt3QOBjfjcGsbFQ-e/edit?usp=sharing" target="_blank">Comercio Autónomo</a></li>
+                <li><a href="https://docs.google.com/spreadsheets/d/1Yi1d6xCT8fZL7ya-NJ4tqVpJKt299OIU/edit?usp=sharing" target="_blank">Concesiones Históricas</a></li>
+                <li><a href="https://enlinea.cuenca.gob.ec/#/impuestos" target="_blank">Pagos pendientes comerciantes</a></li>
+                <li><a href="https://enlinea.cuenca.gob.ec/#/impuestos-cancelados" target="_blank">Pagos cancelados comerciantes</a></li>
+                <li><a href="https://docs.google.com/spreadsheets/d/1OQ_3tY3CTIkkidz7ELQbHX1rWwatYBD9xKf41Niw-RA/edit?usp=sharing" target="_blank">Monitoreo</a></li>
+                <li><a href="https://docs.google.com/spreadsheets/d/1WekK8XP5N65RWGKI70xLTZpV7WKkfx5D/edit?usp=drive_link" target="_blank">Población</a></li>
+                <li><a href="https://loboloba7.github.io/comerciante/" target="_blank">Trámites Comerciantes</a></li>
+                <li><a href="https://hux9dwyzalzf4pkhsz1j0a.on.drv.tw/GENEXUS3/admin.html" target="_blank">Admin</a></li>
+                <li><a href="https://www.cuenca.gob.ec/taxonomy/term/26" target="_blank">Trámites en línea</a></li>
+            </ul>
         </div>
     </div>
 </div>
 
 <script>
     let chartInstances = {};
-    
-    // Datos base
-    let currentData = {
-        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-        adjudicaciones: [12, 19, 15, 25, 22, 30],
-        renovaciones: [8, 12, 10, 15, 18, 20],
-        legalizaciones: [5, 10, 8, 12, 15, 10],
-        renuncias: [2, 4, 1, 3, 2, 5]
-    };
+    const labels = ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4', 'Semana 5', 'Semana 6', 'Semana 7', 'Semana 8'];
 
     function initCharts() {
-        const config = (id, type, labels, datasets) => {
-            const ctx = document.getElementById(id).getContext('2d');
-            return new Chart(ctx, {
-                type: type,
-                data: { labels, datasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: { duration: 2000, easing: 'easeInOutQuart' },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }, // Ocultar leyenda para estilo banner
+            scales: { 
+                y: { display: false }, // Ocultar eje Y para limpieza
+                x: { grid: { display: false } }
+            },
+            elements: { point: { radius: 2 } }
         };
 
-        chartInstances['chart1'] = config('chart1', 'line', currentData.labels, [
-            { label: 'Adjudicaciones', data: [...currentData.adjudicaciones], borderColor: '#8B1D1D', backgroundColor: 'rgba(139,29,29,0.1)', fill: true, tension: 0.4 },
-            { label: 'Renovaciones', data: [...currentData.renovaciones], borderColor: '#CFAE70', tension: 0.4 }
-        ]);
+        const ctx1 = document.getElementById('chart1').getContext('2d');
+        chartInstances['chart1'] = new Chart(ctx1, {
+            type: 'line',
+            data: { labels, datasets: [
+                { data: [10, 15, 8, 12, 20, 15, 25, 22], borderColor: '#8B1D1D', tension: 0.4, fill: true, backgroundColor: 'rgba(139,29,29,0.05)' },
+                { data: [5, 8, 12, 10, 15, 12, 18, 15], borderColor: '#CFAE70', tension: 0.4 }
+            ]},
+            options: commonOptions
+        });
 
-        chartInstances['chart2'] = config('chart2', 'bar', currentData.labels, [
-            { label: 'Legalizaciones', data: [...currentData.legalizaciones], backgroundColor: '#8B1D1D' }
-        ]);
+        const ctx2 = document.getElementById('chart2').getContext('2d');
+        chartInstances['chart2'] = new Chart(ctx2, {
+            type: 'bar',
+            data: { labels, datasets: [{ data: [15, 25, 20, 30, 25, 35, 30, 40], backgroundColor: '#8B1D1D' }]},
+            options: commonOptions
+        });
 
-        chartInstances['chart3'] = config('chart3', 'line', currentData.labels, [
-            { label: 'Renuncias', data: [...currentData.renuncias], borderColor: '#333', tension: 0.3, fill: false }
-        ]);
+        const ctx3 = document.getElementById('chart3').getContext('2d');
+        chartInstances['chart3'] = new Chart(ctx3, {
+            type: 'line',
+            data: { labels, datasets: [{ data: [2, 5, 3, 6, 4, 7, 5, 8], borderColor: '#333', tension: 0.1 }]},
+            options: commonOptions
+        });
     }
 
-    // Función que crea la oscilación aleatoria
-    function oscilarDatos() {
-        const variacion = () => Math.floor(Math.random() * 5) - 2; // Sube o baja hasta 2 puntos
-
-        // Actualizar datos internos
-        currentData.adjudicaciones = currentData.adjudicaciones.map(v => Math.max(5, v + variacion()));
-        currentData.renovaciones = currentData.renovaciones.map(v => Math.max(5, v + variacion()));
-        currentData.legalizaciones = currentData.legalizaciones.map(v => Math.max(2, v + variacion()));
-        currentData.renuncias = currentData.renuncias.map(v => Math.max(0, v + variacion()));
-
-        // Aplicar a los gráficos existentes
-        chartInstances['chart1'].data.datasets[0].data = currentData.adjudicaciones;
-        chartInstances['chart1'].data.datasets[1].data = currentData.renovaciones;
-        chartInstances['chart2'].data.datasets[0].data = currentData.legalizaciones;
-        chartInstances['chart3'].data.datasets[0].data = currentData.renuncias;
-
-        // Refrescar gráficos
-        Object.values(chartInstances).forEach(chart => chart.update());
+    function oscilar() {
+        Object.values(chartInstances).forEach(chart => {
+            chart.data.datasets.forEach(dataset => {
+                dataset.data = dataset.data.map(v => Math.max(2, v + (Math.random() * 4 - 2)));
+            });
+            chart.update('none');
+        });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         initCharts();
-        // Iniciar la oscilación cada 3 segundos
-        setInterval(oscilarDatos, 3000);
+        setInterval(oscilar, 2000);
     });
 </script>
 </body>
