@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dirección de Mercados - GAD Cuenca</title>
+    <title>Dashboard Dinámico - GAD Cuenca</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --guinda: #8B1D1D; --dorado: #CFAE70; --gris: #f4f4f4; }
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--gris); }
+        body { background: var(--gris); overflow-x: hidden; }
 
         header { 
             background: var(--guinda); color: white; padding: 1rem 2rem; 
             display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 4px solid var(--dorado);
         }
         .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
@@ -20,18 +21,27 @@
         .card { 
             background: white; padding: 20px; border-radius: 12px; 
             border-top: 5px solid var(--dorado); min-height: 380px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
         }
+        .card:hover { transform: translateY(-5px); }
         
         h3 { color: var(--guinda); font-size: 0.9rem; margin-bottom: 15px; border-left: 4px solid var(--guinda); padding-left: 10px; text-transform: uppercase; }
         
-        #status { font-size: 0.7rem; padding: 5px 12px; border-radius: 4px; background: #6c757d; font-weight: bold; }
+        #status { font-size: 0.7rem; padding: 5px 12px; border-radius: 20px; background: #28a745; font-weight: bold; color: white; animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
 
         .links-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn-link { 
             padding: 10px; border: 1px solid var(--guinda); color: var(--guinda); 
-            text-decoration: none; text-align: center; border-radius: 4px; font-weight: bold; font-size: 0.8rem;
+            text-decoration: none; text-align: center; border-radius: 4px; font-weight: bold; font-size: 0.8rem; transition: 0.3s;
         }
+        .btn-link:hover { background: var(--guinda); color: white; }
         .btn-sync {
             width: 100%; margin-top: 15px; padding: 12px; background: var(--guinda); 
             color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
@@ -43,10 +53,10 @@
 
 <header>
     <div>
-        <h1>DIRECCIÓN DE MERCADOS | GAD CUENCA</h1>
-        <small>Usuario: ipoveda | Archivo: pantalla.xlsx</small>
+        <h1 style="font-size: 1.2rem;">DIRECCIÓN DE MERCADOS | GAD CUENCA</h1>
+        <small>Monitoreo en Tiempo Real - Usuario: ipoveda</small>
     </div>
-    <div id="status">ESTADO: Iniciando...</div>
+    <div id="status">SISTEMA ACTIVO</div>
 </header>
 
 <div class="container">
@@ -64,23 +74,23 @@
             <div class="chart-container"><canvas id="chart3"></canvas></div>
         </div>
         <div class="card">
-            <h3>Enlaces de Gestión Directa</h3>
+            <h3>Gestión Operativa</h3>
             <div class="links-container">
                 <a href="#" class="btn-link">Mercados Pequeños</a>
                 <a href="#" class="btn-link">Mercados Grandes</a>
                 <a href="#" class="btn-link">Comercio Autónomo</a>
                 <a href="#" class="btn-link">Pagos en Línea</a>
             </div>
-            <button class="btn-sync" onclick="cargarDatosExcel()">SINCRONIZAR EXCEL AHORA</button>
+            <button class="btn-sync">MODO AUTO-OSCILACIÓN</button>
         </div>
     </div>
 </div>
 
 <script>
-    // Guardamos las instancias de los gráficos para que no se dupliquen
     let chartInstances = {};
-
-    const datosDemo = {
+    
+    // Datos base
+    let currentData = {
         labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
         adjudicaciones: [12, 19, 15, 25, 22, 30],
         renovaciones: [8, 12, 10, 15, 18, 20],
@@ -88,69 +98,60 @@
         renuncias: [2, 4, 1, 3, 2, 5]
     };
 
-    async function cargarDatosExcel() {
-        const status = document.getElementById('status');
-        try {
-            // Ponemos un timeout corto para que no se quede "colgado" esperando al servidor
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), 2000);
+    function initCharts() {
+        const config = (id, type, labels, datasets) => {
+            const ctx = document.getElementById(id).getContext('2d');
+            return new Chart(ctx, {
+                type: type,
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 2000, easing: 'easeInOutQuart' },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        };
 
-            const res = await fetch('http://localhost:5000/api/datos', { signal: controller.signal });
-            clearTimeout(id);
-
-            if (!res.ok) throw new Error();
-            
-            const data = await res.json();
-            status.innerText = "CONECTADO: pantalla.xlsx";
-            status.style.background = "#28a745";
-            actualizarInterfaz(data);
-        } catch (err) {
-            console.log("Servidor no disponible, usando datos locales.");
-            status.innerText = "MODO OFFLINE (DEMO)";
-            status.style.background = "#8B1D1D"; 
-            actualizarInterfaz(datosDemo);
-        }
-    }
-
-    function actualizarInterfaz(data) {
-        // Grafico 1: Lineas
-        render('chart1', 'line', data.labels, [
-            { label: 'Adjudicaciones', data: data.adjudicaciones, borderColor: '#8B1D1D', backgroundColor: 'rgba(139,29,29,0.1)', fill: true },
-            { label: 'Renovaciones', data: data.renovaciones, borderColor: '#CFAE70', fill: false }
+        chartInstances['chart1'] = config('chart1', 'line', currentData.labels, [
+            { label: 'Adjudicaciones', data: [...currentData.adjudicaciones], borderColor: '#8B1D1D', backgroundColor: 'rgba(139,29,29,0.1)', fill: true, tension: 0.4 },
+            { label: 'Renovaciones', data: [...currentData.renovaciones], borderColor: '#CFAE70', tension: 0.4 }
         ]);
 
-        // Grafico 2: Barras
-        render('chart2', 'bar', data.labels, [
-            { label: 'Legalizaciones', data: data.legalizaciones, backgroundColor: '#8B1D1D' }
+        chartInstances['chart2'] = config('chart2', 'bar', currentData.labels, [
+            { label: 'Legalizaciones', data: [...currentData.legalizaciones], backgroundColor: '#8B1D1D' }
         ]);
 
-        // Grafico 3: Linea simple
-        render('chart3', 'line', data.labels, [
-            { label: 'Renuncias', data: data.renuncias, borderColor: '#333', tension: 0.3 }
+        chartInstances['chart3'] = config('chart3', 'line', currentData.labels, [
+            { label: 'Renuncias', data: [...currentData.renuncias], borderColor: '#333', tension: 0.3, fill: false }
         ]);
     }
 
-    function render(id, tipo, labels, datasets) {
-        const ctx = document.getElementById(id).getContext('2d');
-        
-        // Si el gráfico ya existe, lo destruimos antes de crearlo de nuevo
-        if (chartInstances[id]) {
-            chartInstances[id].destroy();
-        }
+    // Función que crea la oscilación aleatoria
+    function oscilarDatos() {
+        const variacion = () => Math.floor(Math.random() * 5) - 2; // Sube o baja hasta 2 puntos
 
-        chartInstances[id] = new Chart(ctx, {
-            type: tipo,
-            data: { labels, datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: { duration: 1000 } // Animación suave para que veas que cargó
-            }
-        });
+        // Actualizar datos internos
+        currentData.adjudicaciones = currentData.adjudicaciones.map(v => Math.max(5, v + variacion()));
+        currentData.renovaciones = currentData.renovaciones.map(v => Math.max(5, v + variacion()));
+        currentData.legalizaciones = currentData.legalizaciones.map(v => Math.max(2, v + variacion()));
+        currentData.renuncias = currentData.renuncias.map(v => Math.max(0, v + variacion()));
+
+        // Aplicar a los gráficos existentes
+        chartInstances['chart1'].data.datasets[0].data = currentData.adjudicaciones;
+        chartInstances['chart1'].data.datasets[1].data = currentData.renovaciones;
+        chartInstances['chart2'].data.datasets[0].data = currentData.legalizaciones;
+        chartInstances['chart3'].data.datasets[0].data = currentData.renuncias;
+
+        // Refrescar gráficos
+        Object.values(chartInstances).forEach(chart => chart.update());
     }
 
-    // Ejecutar al cargar la página
-    document.addEventListener('DOMContentLoaded', cargarDatosExcel);
+    document.addEventListener('DOMContentLoaded', () => {
+        initCharts();
+        // Iniciar la oscilación cada 3 segundos
+        setInterval(oscilarDatos, 3000);
+    });
 </script>
 </body>
 </html>
