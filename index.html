@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dirección de Mercados - GAD Cuenca</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --guinda: #8B1D1D; --dorado: #CFAE70; --gris: #f4f4f4; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--gris); color: #333; }
+
+        header { 
+            background: var(--guinda); color: white; padding: 1rem; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .card { 
+            background: white; padding: 25px; border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid var(--dorado);
+            min-height: 350px;
+        }
+        h3 { color: var(--guinda); font-size: 0.9rem; margin-bottom: 20px; text-transform: uppercase; border-left: 4px solid var(--guinda); padding-left: 10px; }
+
+        #status { font-size: 0.75rem; padding: 6px 12px; border-radius: 4px; background: #dc3545; font-weight: bold; }
+
+        .links-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .btn-link { 
+            display: block; padding: 12px; background: white; border: 1px solid var(--guinda); 
+            color: var(--guinda); text-decoration: none; text-align: center; 
+            font-weight: bold; border-radius: 6px; font-size: 0.85rem;
+        }
+        .btn-sync {
+            width: 100%; margin-top: 20px; padding: 15px; background: var(--guinda); 
+            color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1 style="font-size: 1.3rem;">DIRECCIÓN DE MERCADOS | GAD CUENCA</h1>
+        <small>Usuario: ipoveda | Archivo: pantalla.xlsx</small>
+    </div>
+    <div id="status">ERROR: Servidor apagado</div>
+</header>
+
+<div class="container">
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3>Adjudicaciones vs Renovaciones</h3>
+            <canvas id="chart1"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>Estado de Legalizaciones</h3>
+            <canvas id="chart2"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>Monitoreo de Renuncias</h3>
+            <canvas id="chart3"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>Enlaces de Gestión Directa</h3>
+            <div class="links-container">
+                <a href="#" class="btn-link">Mercados Pequeños</a>
+                <a href="#" class="btn-link">Mercados Grandes</a>
+                <a href="#" class="btn-link">Comercio Autónomo</a>
+                <a href="#" class="btn-link">Pagos en Línea</a>
+            </div>
+            <button class="btn-sync" onclick="cargarDatosExcel()">SINCRONIZAR EXCEL AHORA</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let charts = {};
+
+    async function cargarDatosExcel() {
+        try {
+            const res = await fetch('http://localhost:5000/api/datos');
+            const data = await res.json();
+            
+            if (data.error) throw new Error(data.error);
+
+            document.getElementById('status').innerText = "CONECTADO: pantalla.xlsx";
+            document.getElementById('status').style.background = "#28a745";
+            
+            actualizarGraficos(data);
+        } catch (error) {
+            document.getElementById('status').innerText = "ERROR: Servidor apagado";
+            document.getElementById('status').style.background = "#dc3545";
+        }
+    }
+
+    function actualizarGraficos(data) {
+        renderizar('chart1', 'line', data.labels, [
+            { label: 'Adjudicaciones', data: data.adjudicaciones, borderColor: '#8B1D1D', tension: 0.4 },
+            { label: 'Renovaciones', data: data.renovaciones, borderColor: '#CFAE70', tension: 0.4 }
+        ]);
+        renderizar('chart2', 'bar', data.labels, [
+            { label: 'Legalizaciones', data: data.legalizaciones, backgroundColor: '#8B1D1D' }
+        ]);
+        renderizar('chart3', 'line', data.labels, [
+            { label: 'Renuncias', data: data.renuncias, borderColor: '#333', backgroundColor: 'rgba(0,0,0,0.05)', fill: true, tension: 0.3 }
+        ]);
+    }
+
+    function renderizar(id, tipo, etiquetas, datasets) {
+        if (charts[id]) charts[id].destroy();
+        charts[id] = new Chart(document.getElementById(id), {
+            type: tipo,
+            data: { labels: etiquetas, datasets: datasets },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    // Intenta conectar automáticamente al cargar
+    window.onload = cargarDatosExcel;
+</script>
+</body>
+</html>

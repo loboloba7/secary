@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+</head>
+<body oncontextmenu="return false;"><br />
+<br />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></body>
+</html>
+<title>Acceso de Usuarios</title>
+<style type="text/css">body { font-family: Arial, sans-serif; padding: 20px; background-color: #f0f0f0; }
+    .form-box { background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input[type="email"], input[type="password"] {
+      width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: 1px solid #ccc;
+    }
+    button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+</style>
+<div class="form-box" id="loginBox">
+<h2>Ingreso de Usuario</h2>
+
+<form id="loginForm"><input id="correo" placeholder="Correo electrónico" required="" type="email" /> <input id="clave" placeholder="Contraseña" required="" type="password" /><button type="submit">Ingresar</button></form>
+</div>
+<script>
+  const usuarios = {
+    "veronica@gmail.com": "2035",
+    "karen@gmail.com": "2036",
+    "cristina@gmail.com": "2034"
+  };
+
+  const loginForm = document.getElementById('loginForm');
+  const linkDestino = "https://docs.google.com/spreadsheets/d/1imJwczEq9phTRxvfXnRExzsOj4FIxzlx/edit?usp=sharing&ouid=117994036781082144099&rtpof=true&sd=true";
+
+  loginForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const correo = document.getElementById('correo').value.trim().toLowerCase();
+    const clave = document.getElementById('clave').value;
+
+    if (usuarios[correo] && usuarios[correo] === clave) {
+      window.location.href = linkDestino;
+    } else {
+      alert('Correo o contraseña incorrectos.');
+    }
+  });
+</script><script>
+document.onkeydown = function(e) {
+    if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) {
+        return false;
+    }
+    if (e.key === 'F12') {
+        return false;
+    }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) {
+        return false;
+    }
+};
+</script>

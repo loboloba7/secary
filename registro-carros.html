@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro de Carros</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .form {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      background-color: #3498db;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .salida-btn {
+      background-color: #e74c3c;
+      padding: 5px 10px;
+      border-radius: 4px;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .salida-btn:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Registro de Ingreso y Salida de Carros</h1>
+
+  <div class="form">
+    <input type="text" id="puesto" placeholder="Número de puesto" />
+    <input type="text" id="color" placeholder="Color" />
+    <input type="text" id="marca" placeholder="Marca" />
+  </div>
+  <button onclick="registrarIngreso()">Registrar Ingreso</button>
+
+  <h2>Carros en el parqueadero</h2>
+  <ul id="lista-carros"></ul>
+
+  <script>
+    const carros = [];
+
+    function registrarIngreso() {
+      const puesto = document.getElementById('puesto').value.trim();
+      const color = document.getElementById('color').value.trim();
+      const marca = document.getElementById('marca').value.trim();
+
+      if (!puesto || !color || !marca) {
+        alert("Todos los campos son obligatorios.");
+        return;
+      }
+
+      if (carros.length >= 10) {
+        alert("Capacidad máxima alcanzada.");
+        return;
+      }
+
+      if (carros.find(c => c.puesto === puesto)) {
+        alert("Ese puesto ya está ocupado.");
+        return;
+      }
+
+      carros.push({ puesto, color, marca });
+      document.getElementById('puesto').value = "";
+      document.getElementById('color').value = "";
+      document.getElementById('marca').value = "";
+      renderLista();
+    }
+
+    function registrarSalida(puesto) {
+      const index = carros.findIndex(c => c.puesto === puesto);
+      if (index !== -1) {
+        carros.splice(index, 1);
+        renderLista();
+      }
+    }
+
+    function renderLista() {
+      const lista = document.getElementById('lista-carros');
+      lista.innerHTML = "";
+
+      carros.forEach(carro => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span>Puesto ${carro.puesto} - ${carro.color} - ${carro.marca}</span>
+          <button class="salida-btn" onclick="registrarSalida('${carro.puesto}')">Salida</button>
+        `;
+        lista.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
